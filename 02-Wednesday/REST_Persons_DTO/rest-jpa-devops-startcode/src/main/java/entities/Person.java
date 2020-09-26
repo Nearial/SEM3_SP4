@@ -17,7 +17,9 @@ import javax.persistence.TemporalType;
 @Entity
 @NamedQueries({
     @NamedQuery(name = "Person.deleteAllRows", query = "DELETE from Person"),
-    @NamedQuery(name = "Persons.GetAll", query = "SELECT p FROM Person p")})
+    @NamedQuery(name = "Persons.GetAll", query = "SELECT p FROM Person p"),
+    @NamedQuery(name = "Person.getByAddress", query = "SELECT p FROM Person p WHERE p.address.id = :id")
+})
 public class Person implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -38,11 +40,10 @@ public class Person implements Serializable {
     public Person() {
     }
 
-    public Person(String firstName, String lastName, String phone, Address address) {
+    public Person(String firstName, String lastName, String phone) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
-        this.address = address;
         created = new Date();
         lastEdited = new Date();
     }

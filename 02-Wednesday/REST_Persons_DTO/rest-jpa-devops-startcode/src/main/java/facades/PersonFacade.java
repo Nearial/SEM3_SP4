@@ -42,17 +42,22 @@ public class PersonFacade implements IPersonFacade {
     public PersonDTO addPerson(String fName, String lName, String phone, String street, int zip, String city) throws MissingInputException {
         if (fName.isEmpty() || lName.isEmpty()) {
             throw new MissingInputException("First and / or Last Name is missing");
+        } else if (street.isEmpty() || zip <= 0 || city.isEmpty()) {
+            throw new MissingInputException("Street or City is missing");
         }
 
         EntityManager em = getEntityManager();
-        
-        Address a1 = getAddress(street, zip, city);
-        Person person = new Person(fName, lName, phone, a1);
+
+        Address address = getAddress(street, zip, city);
+        Person person = new Person(fName, lName, phone);
 
         try {
             em.getTransaction().begin();
             em.persist(person);
+            person.setAddress(address);
+            em.merge(person);
             em.getTransaction().commit();
+
             return new PersonDTO(person);
         } finally {
             em.close();
@@ -65,15 +70,28 @@ public class PersonFacade implements IPersonFacade {
 
         try {
             Person person = em.find(Person.class, id);
+            Address address = person.getAddress();
 
             if (person == null) {
                 throw new PersonNotFoundException("Could not delete, provided id does not exist");
             }
 
+            address.removePerson(person);
+
+            boolean deleteAddress = false;
+            if (address.getPersons().isEmpty()) {
+                deleteAddress = true;
+            }
+
             em.getTransaction().begin();
-            em.remove(person.getAddress());
             em.remove(person);
+
+            if (deleteAddress) {
+                em.remove(address);
+            }
+
             em.getTransaction().commit();
+
             return new PersonDTO(person);
         } finally {
             em.close();
@@ -158,7 +176,7 @@ public class PersonFacade implements IPersonFacade {
 
             if (addresses.isEmpty()) {
                 address = new Address(street, zip, city);
-            }else{
+            } else {
                 address = addresses.get(0);
             }
 

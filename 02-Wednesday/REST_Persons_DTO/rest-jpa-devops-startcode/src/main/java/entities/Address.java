@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -30,7 +31,7 @@ public class Address implements Serializable {
     private int zip;
     private String city;
 
-    @OneToMany(mappedBy = "address")
+    @OneToMany(mappedBy = "address", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private List<Person> persons;
 
     public Address() {
@@ -49,6 +50,18 @@ public class Address implements Serializable {
 
     public void setPerson(List<Person> persons) {
         this.persons = persons;
+    }
+    
+    public void addPerson(Person person){
+        persons.add(person);
+        
+        if(person != null){
+            person.setAddress(this);
+        }
+    }
+    
+    public void removePerson(Person person){
+        persons.remove(person);
     }
 
     public Integer getId() {

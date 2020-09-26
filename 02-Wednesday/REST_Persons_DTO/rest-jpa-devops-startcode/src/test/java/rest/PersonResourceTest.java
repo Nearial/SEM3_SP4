@@ -62,6 +62,7 @@ public class PersonResourceTest {
         try {
             em.getTransaction().begin();
             em.createNamedQuery("Person.deleteAllRows").executeUpdate();
+            em.createNamedQuery("Address.deleteAllRows").executeUpdate();
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -81,9 +82,13 @@ public class PersonResourceTest {
         Address a1 = new Address("Sverige", 3555, "Sverigeborg");
         Address a2 = new Address("Afrika", 3555, "Detroit");
         Address a3 = new Address("Danmark", 3555, "Himlen");
-        persons.add(new Person("Nicklas", "Nielsen", "11111111", a1));
-        persons.add(new Person("Mathias", "Nielsen", "22222222", a2));
-        persons.add(new Person("Nikolaj", "Larsen", "11223344", a3));
+        persons.add(new Person("Nicklas", "Nielsen", "11111111"));
+        persons.add(new Person("Mathias", "Nielsen", "22222222"));
+        persons.add(new Person("Nikolaj", "Larsen", "11223344"));
+        persons.get(0).setAddress(a1);
+        persons.get(1).setAddress(a2);
+        persons.get(2).setAddress(a3);
+        
         try {
             em.getTransaction().begin();
             for (Person person : persons) {
@@ -110,6 +115,7 @@ public class PersonResourceTest {
         try {
             em.getTransaction().begin();
             em.createNamedQuery("Person.deleteAllRows").executeUpdate();
+            em.createNamedQuery("Address.deleteAllRows").executeUpdate();
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -174,7 +180,8 @@ public class PersonResourceTest {
     @Test
     public void testAddPerson_added() {
         Address a1 = new Address("Himlen", 6969, "Danmark");
-        Person person = new Person("Sven", "Den Almægtige", "26354725", a1);
+        Person person = new Person("Sven", "Den Almægtige", "26354725");
+        person.setAddress(a1);
         PersonDTO expected = new PersonDTO(person);
         
         PersonDTO actual = given()
@@ -191,7 +198,8 @@ public class PersonResourceTest {
     @Test
     public void testAddPerson_invalid_FirstName() {
         Address a1 = new Address("Himlen", 6969, "Danmark");
-        Person person = new Person("", "Den Almægtige", "272466754", a1);
+        Person person = new Person("", "Den Almægtige", "272466754");
+        person.setAddress(a1);
         PersonDTO personDTO = new PersonDTO(person);
         
         given()
@@ -205,7 +213,8 @@ public class PersonResourceTest {
     @Test
     public void testAddPerson_invalid_LastName() {
         Address a1 = new Address("Himlen", 6969, "Danmark");
-        Person person = new Person("Sven", "", "272466754", a1);
+        Person person = new Person("Sven", "", "272466754");
+        person.setAddress(a1);
         PersonDTO personDTO = new PersonDTO(person);
         
         given()

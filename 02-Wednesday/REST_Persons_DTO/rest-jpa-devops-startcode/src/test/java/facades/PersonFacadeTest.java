@@ -42,6 +42,7 @@ public class PersonFacadeTest {
         try {
             em.getTransaction().begin();
             em.createNamedQuery("Person.deleteAllRows").executeUpdate();
+            em.createNamedQuery("Address.deleteAllRows").executeUpdate();
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -55,6 +56,7 @@ public class PersonFacadeTest {
         try {
             em.getTransaction().begin();
             em.createNamedQuery("Person.deleteAllRows").executeUpdate();
+            em.createNamedQuery("Address.deleteAllRows").executeUpdate();
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -69,9 +71,12 @@ public class PersonFacadeTest {
         Address a1 = new Address("Sverige", 3555, "Sverigeborg");
         Address a2 = new Address("Afrika", 3555, "Detroit");
         Address a3 = new Address("Danmark", 3555, "Himlen");
-        persons.add(new Person("Nicklas", "Nielsen", "11111111", a1));
-        persons.add(new Person("Mathias", "Nielsen", "22222222", a2));
-        persons.add(new Person("Nikolaj", "Larsen", "11223344", a3));
+        persons.add(new Person("Nicklas", "Nielsen", "11111111"));
+        persons.add(new Person("Mathias", "Nielsen", "22222222"));
+        persons.add(new Person("Nikolaj", "Larsen", "11223344"));
+        persons.get(0).setAddress(a1);
+        persons.get(1).setAddress(a2);
+        persons.get(2).setAddress(a3);
 
         try {
             em.getTransaction().begin();
@@ -103,6 +108,7 @@ public class PersonFacadeTest {
         try {
             em.getTransaction().begin();
             em.createNamedQuery("Person.deleteAllRows").executeUpdate();
+            em.createNamedQuery("Address.deleteAllRows").executeUpdate();
             em.getTransaction().commit();
         } finally {
             em.close();
