@@ -152,12 +152,14 @@ public class PersonFacade implements IPersonFacade {
             query.setParameter("street", street);
             query.setParameter("zip", zip);
             query.setParameter("city", city);
+            Address address;
 
             List<Address> addresses = query.getResultList();
-            Address address = addresses.get(0);
 
-            if (address == null) {
+            if (addresses.isEmpty()) {
                 address = new Address(street, zip, city);
+            }else{
+                address = addresses.get(0);
             }
 
             return address;
