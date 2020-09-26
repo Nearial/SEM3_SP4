@@ -70,12 +70,12 @@ public class PersonFacade implements IPersonFacade {
 
         try {
             Person person = em.find(Person.class, id);
-            Address address = person.getAddress();
 
             if (person == null) {
                 throw new PersonNotFoundException("Could not delete, provided id does not exist");
             }
 
+            Address address = person.getAddress();
             address.removePerson(person);
 
             boolean deleteAddress = false;
@@ -144,16 +144,30 @@ public class PersonFacade implements IPersonFacade {
                 throw new PersonNotFoundException("Could not edit, provided id does not exist");
             }
 
+            Address address = person.getAddress();
+            
+            Address oldAddress = address;
+            boolean editAddress = false;
+            if (address.getPersons().contains(person) && address.getPersons().size() == 1) {
+                editAddress = true;
+            }
+
+            address.removePerson(person);
+            address = getAddress(p.getStreet(), p.getZip(), p.getCity());
+
+            em.getTransaction().begin();
+            //Person
             person.setFirstName(p.getFirstName());
             person.setLastName(p.getLastName());
             person.setPhone(p.getPhone());
-            person.getAddress().setStreet(p.getStreet());
-            person.getAddress().setZip(p.getZip());
-            person.getAddress().setCity(p.getCity());
             person.setLastEdited(new Date());
 
-            em.getTransaction().begin();
-            em.persist(person);
+            //Address
+            if (editAddress) {
+                em.remove(oldAddress);
+            }
+            person.setAddress(address);
+            em.merge(person);
             em.getTransaction().commit();
 
             return new PersonDTO(person);
@@ -178,6 +192,12 @@ public class PersonFacade implements IPersonFacade {
                 address = new Address(street, zip, city);
             } else {
                 address = addresses.get(0);
+
+                query = em.createNamedQuery("Person.getByAddress");
+                query.setParameter("id", address.getId());
+
+                List<Person> persons = query.getResultList();
+                address.setPerson(persons);
             }
 
             return address;
